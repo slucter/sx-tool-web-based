@@ -69,12 +69,12 @@ export function AppSidebar() {
           </div>
           
           {/* Logo saat collapsed - hanya teks SX */}
-          <div className="hidden group-data-[collapsible=icon]:flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-black to-maroon-800 shadow-lg ring-2 ring-maroon-500/30 transition-all duration-200">
-            <span className="text-sm font-bold text-white">SX</span>
+          <div className="hidden group-data-[collapsible=icon]:flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-black to-maroon-800 dark:from-maroon-100 dark:to-maroon-500 shadow-lg ring-2 ring-maroon-500/30 dark:ring-maroon-400/40 transition-all duration-200">
+            <span className="text-sm font-bold text-white dark:text-black">SX</span>
           </div>
           
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <h2 className="text-lg font-bold bg-gradient-to-r from-black to-maroon-700 bg-clip-text text-transparent">
+            <h2 className="text-lg font-bold bg-gradient-to-r from-black to-maroon-700 dark:from-white dark:to-maroon-200 bg-clip-text text-transparent">
               SX Tools
             </h2>
             <p className="text-xs text-muted-foreground">Your Productivity Suite</p>
