@@ -12,7 +12,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-  SidebarFooter,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { Globe, Copy, List, Home } from "lucide-react"
@@ -125,16 +124,6 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      
-      <SidebarFooter className="border-t p-4 group-data-[collapsible=icon]:p-2">
-        <div className="group-data-[collapsible=icon]:hidden">
-          <p className="text-xs text-center text-muted-foreground">© 2025 SX Tools</p>
-          <p className="text-xs text-center text-muted-foreground/60 mt-1">v1.0.0</p>
-        </div>
-        <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center">
-          <div className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-black to-maroon-600"></div>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   )
 }
