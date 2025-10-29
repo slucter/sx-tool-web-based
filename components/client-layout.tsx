@@ -13,12 +13,12 @@ export function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <TabProvider>
       <SidebarProvider>
-        <div className="flex min-h-screen w-full overflow-hidden">
+        <div className="flex min-h-screen w-full">
           <AppSidebar />
-          <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
+          <div className="flex flex-1 flex-col min-w-0 h-screen overflow-hidden">
             <Navbar />
             <TabBar />
-            <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
+            <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden">
               <TabContent />
             </main>
             <Footer />

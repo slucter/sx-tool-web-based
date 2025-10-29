@@ -203,7 +203,7 @@ export default function ListFormatPage() {
             Paste your data list or import from a text file (.txt)
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
+        <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}

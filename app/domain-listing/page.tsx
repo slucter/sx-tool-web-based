@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { Copy, Trash2, Upload, Globe } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Copy, Trash2, Upload, Globe, ArrowUpDown, FolderTree } from "lucide-react"
 import { toast } from "sonner"
 import { parseULPLines } from "@/lib/ulp-parser"
 
@@ -18,10 +20,14 @@ interface DomainGroup {
   statusMessage?: string
 }
 
+type SortOption = 'domain-asc' | 'domain-desc' | 'count-desc' | 'count-asc'
+
 export default function DomainListingPage() {
   const [inputText, setInputText] = useState("")
   const [domainGroups, setDomainGroups] = useState<DomainGroup[]>([])
   const [isDragging, setIsDragging] = useState(false)
+  const [sortOption, setSortOption] = useState<SortOption>('domain-asc')
+  const [selectedDomainForPaths, setSelectedDomainForPaths] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const extractDomain = (line: string): string | null => {
@@ -95,10 +101,26 @@ export default function DomainListingPage() {
       count: urls.length,
     }))
 
-    // Sort by count descending
-    groups.sort((a, b) => b.count - a.count)
     setDomainGroups(groups)
   }
+
+  // Sort domain groups based on selected option
+  const sortedDomainGroups = useMemo(() => {
+    const sorted = [...domainGroups]
+    
+    switch (sortOption) {
+      case 'domain-asc':
+        return sorted.sort((a, b) => a.domain.localeCompare(b.domain))
+      case 'domain-desc':
+        return sorted.sort((a, b) => b.domain.localeCompare(a.domain))
+      case 'count-asc':
+        return sorted.sort((a, b) => a.count - b.count)
+      case 'count-desc':
+        return sorted.sort((a, b) => b.count - a.count)
+      default:
+        return sorted
+    }
+  }, [domainGroups, sortOption])
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -111,6 +133,58 @@ export default function DomainListingPage() {
 
   const copyDomainUrls = (urls: string[]) => {
     copyToClipboard(urls.join("\n"))
+  }
+
+  // Extract unique paths from URLs
+  const extractPaths = (urls: string[]): string[] => {
+    const pathSet = new Set<string>()
+
+    urls.forEach(line => {
+      try {
+        // Remove @ at the start if present
+        let url = line.trim().replace(/^@/, "")
+        
+        // Extract URL part before credentials
+        let urlPart = url
+        
+        // Handle URLs with credentials (format: URL:username:password)
+        if (url.match(/^https?:\/\//)) {
+          const protocolMatch = url.match(/^(https?:\/\/[^/:]+(?::\d+)?(?:\/[^:]*)?)/i)
+          if (protocolMatch) {
+            urlPart = protocolMatch[1]
+          }
+        } else {
+          const match = url.match(/^([^:]+(?::\d+)?)(?::.*)?/)
+          if (match) {
+            urlPart = "http://" + match[1]
+          }
+        }
+
+        const urlObj = new URL(urlPart)
+        let path = urlObj.pathname || '/'
+        
+        // Add query string if exists
+        if (urlObj.search) {
+          path += urlObj.search
+        }
+        
+        // Only add if not just root
+        pathSet.add(path)
+      } catch (error) {
+        // If parsing fails, try to extract path manually
+        const pathMatch = line.match(/\/([^:?]*(?:\?[^:]*)?)/)
+        if (pathMatch) {
+          pathSet.add('/' + pathMatch[1])
+        }
+      }
+    })
+
+    return Array.from(pathSet).sort()
+  }
+
+  const getPathsForDomain = (domain: string): string[] => {
+    const group = domainGroups.find(g => g.domain === domain)
+    return group ? extractPaths(group.urls) : []
   }
 
   const checkConnection = async (domain: string) => {
@@ -294,7 +368,7 @@ export default function DomainListingPage() {
             Paste your data list below or import from a text file (.txt). Each line should contain a URL with credentials.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
+        <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6">
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -350,11 +424,29 @@ export default function DomainListingPage() {
 
       {domainGroups.length > 0 && (
         <div>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">
-            Extracted Domains ({domainGroups.length})
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 sm:mb-4">
+            <h2 className="text-xl sm:text-2xl font-semibold">
+              Extracted Domains ({sortedDomainGroups.length})
+            </h2>
+            
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+              <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
+                <SelectTrigger className="w-[180px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="domain-asc">Domain A→Z</SelectItem>
+                  <SelectItem value="domain-desc">Domain Z→A</SelectItem>
+                  <SelectItem value="count-desc">Count High→Low</SelectItem>
+                  <SelectItem value="count-asc">Count Low→High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
           <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {domainGroups.map((group) => (
+            {sortedDomainGroups.map((group) => (
               <Card key={group.domain} className="relative">
                 <CardHeader className="p-4 sm:p-6">
                   <div className="flex items-start justify-between gap-2">
@@ -412,20 +504,80 @@ export default function DomainListingPage() {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 min-w-[100px]"
                       onClick={() => copyDomainUrls(group.urls)}
                     >
                       <Copy className="h-4 w-4 mr-2" />
                       Copy URLs
                     </Button>
+                    
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 min-w-[100px]"
+                        >
+                          <FolderTree className="h-4 w-4 mr-2" />
+                          Paths
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent className="w-full sm:max-w-md overflow-y-auto px-6">
+                        <SheetHeader className="px-0">
+                          <SheetTitle className="break-all">{group.domain}</SheetTitle>
+                          <SheetDescription>
+                            Unique paths found ({getPathsForDomain(group.domain).length})
+                          </SheetDescription>
+                        </SheetHeader>
+                        <div className="mt-6 space-y-2">
+                          {getPathsForDomain(group.domain).map((path, idx) => (
+                            <div key={idx} className="group relative">
+                              <div className="flex items-start gap-2 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors">
+                                <Globe className="h-4 w-4 shrink-0 mt-0.5 text-muted-foreground" />
+                                <code className="flex-1 text-sm break-all">{path}</code>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => copyToClipboard(path)}
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                          {getPathsForDomain(group.domain).length === 0 && (
+                            <div className="text-center p-8 text-muted-foreground">
+                              <Globe className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                              <p className="text-sm">No paths found</p>
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-6 pt-4 border-t sticky bottom-0 bg-background pb-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={() => {
+                              const paths = getPathsForDomain(group.domain)
+                              copyToClipboard(paths.join('\n'))
+                            }}
+                          >
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy All Paths
+                          </Button>
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                    
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 min-w-[100px]"
                       onClick={() => checkConnection(group.domain)}
                       disabled={group.connectionStatus === 'checking'}
                     >

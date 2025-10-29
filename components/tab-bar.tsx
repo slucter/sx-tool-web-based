@@ -28,11 +28,11 @@ export function TabBar() {
   }, [activeTabId])
 
   if (!tabs || tabs.length === 0) {
-    return <div className="border-b bg-muted/20 h-[42px]" />
+    return <div className="sticky top-14 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-[42px] shadow-sm" />
   }
 
   return (
-    <div className="border-b bg-muted/20 overflow-hidden">
+    <div className="sticky top-14 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 overflow-hidden shadow-sm transition-shadow">
       <div 
         ref={scrollContainerRef}
         className="flex items-center gap-0.5 px-2 py-1.5 overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent hover:scrollbar-thumb-muted-foreground/20 transition-colors"
