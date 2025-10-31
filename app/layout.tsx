@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { ClientLayout } from "@/components/client-layout";
+import { AdScripts } from "@/components/ad-scripts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        <AdScripts />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
