@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Globe, Copy, List, MessageCircle, Wrench } from "lucide-react"
 import { useTab } from "@/contexts/tab-context"
+import { AdBanner } from "@/components/ad-banner"
 
 export default function Home() {
   const { addTab } = useTab()
@@ -32,8 +33,7 @@ export default function Home() {
 
   return (
     <div className="space-y-6 sm:space-y-8 max-w-5xl">
-      {/* Native Banner Ad Container */}
-      <div id="container-c3444bda6face84b8217b377ca435100"></div>
+      <AdBanner />
       
       {/* Header */}
       <div className="space-y-2">

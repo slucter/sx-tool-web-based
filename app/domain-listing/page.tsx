@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Copy, Trash2, Upload, Globe, ArrowUpDown, FolderTree } from "lucide-react"
 import { toast } from "sonner"
 import { parseULPLines } from "@/lib/ulp-parser"
+import { AdBanner } from "@/components/ad-banner"
 
 interface DomainGroup {
   domain: string
@@ -354,6 +355,8 @@ export default function DomainListingPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      <AdBanner />
+      
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Domain Listing</h1>
         <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Copy, Trash2, Upload, FileText } from "lucide-react"
 import { toast } from "sonner"
 import { parseULPLines } from "@/lib/ulp-parser"
+import { AdBanner } from "@/components/ad-banner"
 
 type Delimiter = ':' | '|' | ',' | ';' | 'tab' | 'space'
 
@@ -188,6 +189,8 @@ export default function ListFormatPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      <AdBanner />
+      
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">List Format</h1>
         <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
